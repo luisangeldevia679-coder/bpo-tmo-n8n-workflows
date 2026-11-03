@@ -1,0 +1,252 @@
+{
+  "name": "BPO_Email_Categorization_and_Archiving",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f1160116-29b7-44fd-aa5f-30de0264b5d6",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"CustomerId\": \"C001\",\n  \"ContactChannel\": \"Chat\",\n  \"CustomerIntent\": \"Payment Issue\",\n  \"Sentiment\": \"Very Negative\",\n  \"Priority\": \"Urgent\",\n  \"PreviousContacts\": 4,\n  \"WaitTimeMinutes\": 12\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "e3d6d85d-43b0-4fdd-a7e9-81f48a745668",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "383430dd-e31e-46b4-bbf4-eaa8f663f469",
+              "leftValue": "={{ $json.nombre_del_campo }}",
+              "rightValue": "Urgent",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "8e8b84dc-3029-40b3-9b8f-b80eb0c9d3db",
+              "leftValue": "={{ $json.Sentiment }}",
+              "rightValue": "Very Negative",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "685efc6f-9495-43ff-b2cb-7b41ac573792",
+              "leftValue": "={{ $json.PreviousContacts }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        448,
+        0
+      ],
+      "id": "1d029d78-2013-4b6e-997a-775463909af9",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5de74f9d-36c4-4377-9b47-23112fac15bc",
+              "name": "EscalationRequired",
+              "value": "Yes",
+              "type": "string"
+            },
+            {
+              "id": "6bd1eba2-b0d9-4fda-9de0-8a1d59f48b51",
+              "name": "RecommendedAction",
+              "value": "Route to Supervisor / Tier 2",
+              "type": "string"
+            },
+            {
+              "id": "35f73634-b0b0-45df-b6e7-e80622e9a0fa",
+              "name": "AlertSent",
+              "value": "true",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": "={{ false }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        896,
+        -128
+      ],
+      "id": "0b71142f-d2bb-4a4a-b953-4b992221ea22",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5abb05c7-c102-4944-b2e0-7373818f6b20",
+              "name": "EscalationRequire",
+              "value": "No",
+              "type": "string"
+            },
+            {
+              "id": "17c5a672-e46d-405b-8491-502fefaed823",
+              "name": "RecommendedAction",
+              "value": "Assign to Standard Bot / Tier 1 Agent",
+              "type": "string"
+            },
+            {
+              "id": "e1944713-7d5d-48b6-a629-31e92e2cff24",
+              "name": "AlertSent",
+              "value": "false",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        672,
+        96
+      ],
+      "id": "ccdacffe-726b-4d6d-b8ce-860b8b6e7bbe",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "fromEmail": "luisangeldevia679@gmail.com",
+        "toEmail": "luisangeldevia679@gmail.com",
+        "subject": "==[BPO ALERT] Critical Customer Case Detected - {{ $json.CustomerId }}",
+        "emailFormat": "text",
+        "text": "=CRITICAL CUSTOMER ESCALATION ALERT\n\nCustomer ID: {{ $json.CustomerId }}\nContact Channel: {{ $json.ContactChannel }}\nCustomer Intent: {{ $json.CustomerIntent }}\nSentiment: {{ $json.Sentiment }}\nPriority Level: {{ $json.Priority }}\nPrevious Contact Count: {{ $json.PreviousContacts }}\nWait Time: {{ $json.WaitTimeMinutes }} minutes\n\nAction Required: Route directly to Supervisor / Tier 2 Support.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        -128
+      ],
+      "id": "bc5c6757-f810-4ae5-8a98-e4a17ba13578",
+      "name": "Send an Email",
+      "webhookId": "04bfd181-88de-496d-a9ed-95855cfd71b2",
+      "credentials": {
+        "smtp": {
+          "id": "lhBFxMXjWgjqwr4P",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an Email": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "54c3db4e-97ad-4770-987f-56fd3762a1f2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a5b626cb1dcb158ea11890bc10caa7b7e76aa804d53d9fa93b5efc22b20db88b"
+  },
+  "nodeGroups": [],
+  "id": "L4WnYtFce6BtVGp1",
+  "tags": []
+}
