@@ -1,0 +1,211 @@
+{
+  "name": "Flujo-2",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"CustomerId\": \"C001\",\n  \"ContactChannel\": \"Chat\",\n  \"CustomerIntent\": \"Payment Issue\",\n  \"Sentiment\": \"Very Negative\",\n  \"Priority\": \"Urgent\",\n  \"PreviousContacts\": 4,\n  \"WaitTimeMinutes\": 12\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        0
+      ],
+      "id": "c4137ce6-3383-4951-a639-83d2b33b2020",
+      "name": "Customer Input Data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "cond-priority",
+              "leftValue": "={{ $json.Priority }}",
+              "rightValue": "Urgent",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "cond-sentiment",
+              "leftValue": "={{ $json.Sentiment }}",
+              "rightValue": "Very Negative",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "cond-contacts",
+              "leftValue": "={{ $json.PreviousContacts }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "largerEqual"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        32,
+        0
+      ],
+      "id": "8676cbd4-6b13-4ca9-84f3-378add7c572a",
+      "name": "Check Critical Status"
+    },
+    {
+      "parameters": {
+        "fromEmail": "luisangeldevia679@gmail.com",
+        "toEmail": "luisangeldevia679@gmail.com",
+        "subject": "=[CRITICAL ALERT] Supervisor Escalation Required - Customer {{ $json.CustomerId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        272,
+        -112
+      ],
+      "id": "5085287a-3e2e-49e3-aad3-1ec747ecf003",
+      "name": "Send Critical Email Alert",
+      "webhookId": "23cd5dda-ad5c-4e93-85fe-45656c9493a5",
+      "credentials": {
+        "smtp": {
+          "id": "lhBFxMXjWgjqwr4P",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "luisangeldevia679@gmail.com",
+        "toEmail": "luisangeldevia679@gmail.com",
+        "subject": "=[STANDARD NOTICE] Regular Case Assigned - Customer {{ $json.CustomerId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        272,
+        128
+      ],
+      "id": "6908e6b9-f09b-4220-888f-5f71d765d192",
+      "name": "Send Standard Email Notice",
+      "webhookId": "14fe24b7-d87e-402e-8f46-b38be74249f0",
+      "credentials": {
+        "smtp": {
+          "id": "lhBFxMXjWgjqwr4P",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "manualMapping",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        -112
+      ],
+      "id": "e1d998e4-3c24-4014-98a8-28c0d211bb4e",
+      "name": "Document Critical Case"
+    },
+    {
+      "parameters": {
+        "mode": "manualMapping",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        128
+      ],
+      "id": "564a31fc-678b-4c76-8c05-e28225182f40",
+      "name": "Document Standard Case"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Customer Input Data": {
+      "main": [
+        [
+          {
+            "node": "Check Critical Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Critical Status": {
+      "main": [
+        [
+          {
+            "node": "Send Critical Email Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Standard Email Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Critical Email Alert": {
+      "main": [
+        [
+          {
+            "node": "Document Critical Case",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Standard Email Notice": {
+      "main": [
+        [
+          {
+            "node": "Document Standard Case",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "12e3e508-5432-46dd-9983-bb1a69295af6",
+  "meta": {
+    "instanceId": "a5b626cb1dcb158ea11890bc10caa7b7e76aa804d53d9fa93b5efc22b20db88b"
+  },
+  "nodeGroups": [],
+  "id": "Ha3UTdWYU09VdMKb",
+  "tags": []
+}
